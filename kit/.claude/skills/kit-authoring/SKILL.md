@@ -78,9 +78,9 @@ Start each file with a short comment that names the source and says which parts 
 
 People install it with `agd --home init <source>`, and it applies to every project on their machine, so it holds only what they'd want everywhere.
 
-- **Only files under `.claude/`.** agd stops on anything else, including a root `CLAUDE.md` or `AGENTS.md`, which would load in every project under the home folder.
+- **Only files under `.claude/`, with plain ASCII names.** agd stops on anything else, including a root `CLAUDE.md` or `AGENTS.md`, which would load in every project under the home folder.
 - **Rules go in `.claude/rules/<name>.md`.** Most people already have a `~/.claude/CLAUDE.md`, and agd leaves it alone, so a kit's copy wouldn't install.
-- **No `.claude/settings.json`.** agd stops on that too, since its hooks would run in every project. Tell people what to add to their own settings instead.
+- **No `.claude/settings*` files.** agd stops on those too, since its hooks would run in every project. Tell people what to add to their own settings instead.
 - **Distinctive skill names.** A personal skill beats a project's skill with the same name, in every project.
 
 ## 5. Check it

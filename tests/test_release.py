@@ -182,7 +182,8 @@ class MarkerRuleTest(unittest.TestCase):
 
     def test_bad_markers_and_closing_words_are_problems(self):
         for notes in ("- A change. (part of #20)\n", "- A change. (refs #20)\n", "- A change. (#20 #21)\n",
-                      "- This closes #12 for good.\n", "- Fixes #12.\n", "- Long\n  and resolved #12 here.\n"):
+                      "- This closes #12 for good.\n", "- Fixes #12.\n", "- Long\n  and resolved #12 here.\n",
+                      "- A change (#12).\n", "- A change (#12) (#13)\n", "- A change (ref #12) (#13).\n"):
             self.assertEqual(len(marker_problems(notes)), 1, notes)
 
     def test_the_unreleased_changelog_entry_has_no_problems(self):

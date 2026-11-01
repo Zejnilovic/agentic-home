@@ -4,7 +4,7 @@ agentic-home is a kit source: a kit for a person's home folder, installed and up
 
 ## The kit
 
-- Files in `kit/` land in `~`. agd installs only under `.claude/`, and never `.claude/settings.json`, so anything else in a pack stops the install. Check with `agd check`, once a tag exists.
+- Files in `kit/` land in `~`. agd installs only under `.claude/`, with plain ASCII names and never a `.claude/settings*` file, so anything else in a pack stops the install. Check with `agd check`, once a tag exists.
 - Keep each skill's folder in one pack in `packs.txt`, and give skills distinctive names: a personal skill beats a project's skill with the same name.
 - No `CLAUDE.md` in the kit: most people have their own, and its text would load in every session. Rules go in `.claude/rules/<name>.md`.
 
