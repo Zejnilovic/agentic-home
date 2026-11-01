@@ -1,0 +1,75 @@
+name: Release
+
+# Releases the "(unreleased)" version in CHANGELOG.md: its notes become a GitHub release, CHANGELOG.md
+# keeps a link, the release commit is tagged v<version>, and the issues the notes name are closed or
+# commented on. Start it from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Prepare the release and show the notes, but push nothing
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    # Release only from the default branch, never from a feature branch.
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Checks before release
+        run: python3 -m unittest discover -s tests
+      - name: Move the notes out of CHANGELOG.md
+        run: |
+          NOTES="$RUNNER_TEMP/notes.md"
+          version=$(python3 scripts/release.py --notes "$NOTES")
+          { echo "VERSION=$version"; echo "NOTES=$NOTES"; } >> "$GITHUB_ENV"
+          # The summary keeps the notes, so a failed last step can be finished by hand:
+          # gh release create v<version> --verify-tag --title <version> --notes-file notes.md
+          { echo "## Release notes for $version"; echo; cat "$NOTES"; echo; echo '## CHANGELOG.md'; echo
+            echo '```diff'; git diff CHANGELOG.md; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # Before anything is pushed, so a wrong issue number stops the release.
+      - name: Check the issues the notes name
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo; echo '## Issues'; echo; } >> "$GITHUB_STEP_SUMMARY"
+          python3 scripts/close_issues.py --version "$VERSION" --notes "$NOTES" --dry-run | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit -q -am "Release $VERSION"
+          git tag -a "v$VERSION" -m "Release $VERSION"
+      # After the tag, because agd check needs a release tag. It reads the working tree as an install reads a release.
+      - name: Check the kit with agd
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/Zejnilovic/agd/main/install.sh | bash -s -- --dir "$RUNNER_TEMP/agd"
+          bash "$RUNNER_TEMP/agd/agd" check
+      - name: Push the commit and tag
+        if: ${{ !inputs.dry_run }}
+        run: git push --atomic origin "HEAD:$GITHUB_REF_NAME" "v$VERSION"
+      - name: Create the GitHub release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v$VERSION" --verify-tag --title "$VERSION" --notes-file "$NOTES"
+      # Last, because a release must exist before its issues count as fixed. If this fails, run it again by hand
+      # with the notes from the summary: it skips what is already done.
+      - name: Close and comment on issues
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/close_issues.py --version "$VERSION" --notes "$NOTES" | tee -a "$GITHUB_STEP_SUMMARY"

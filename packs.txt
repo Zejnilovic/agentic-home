@@ -1,0 +1,5 @@
+# agentic-home: a kit for your home folder, for every project on your machine.
+# Paths are relative to kit/.
+
+pack kit-authoring
+  .claude/skills/kit-authoring/
