@@ -68,7 +68,7 @@ Put each thing where it costs least:
 
 Three parts of a kit file belong to the project, and updates keep them:
 
-- **`model:`** Set it as your default. Projects may change it.
+- **`model:`** Set it as your default. Projects may change it. Copilot CLI fails a subagent whose `model:` is `haiku` or `sonnet`, so for a kit meant for it, use `inherit` or tell people to change the line. An agent that relies on `AGENTS.md` also needs `include-custom-instructions: true` there; Claude Code ignores that line.
 - **`tools:`** Leave it out.
 - **`## This project`**, and everything under it to the end of the file. Leave it out, except where a project should fill in a section, such as the end of a root `AGENTS.md`.
 

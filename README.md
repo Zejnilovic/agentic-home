@@ -14,6 +14,12 @@ agd --home update
 
 The files land in `~/.claude/`, and a file you already have at the same path is left alone. See [Install for every project](https://zejnilovic.github.io/agd/guides/home/).
 
+Copilot in VS Code finds them there. Copilot CLI doesn't load `~/.claude/`, so if `copilot skill list` doesn't show them, [point it there once](https://zejnilovic.github.io/agd/guides/home/#copilot-cli):
+
+```bash
+copilot skill add ~/.claude/skills
+```
+
 ## What's in it
 
 | Pack | What it does |
